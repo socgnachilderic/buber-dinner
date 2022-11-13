@@ -2,10 +2,26 @@ use actix_web::{get, web, App, HttpResponse, HttpServer};
 use application::services::authentication::AuthenticationService;
 use infrastructure::{
     authentication::{jwt_settings::JwtSettings, jwt_token_generator::JwtTokenGenerator},
+    persistence::user_inmemory_repository::UserInMemoryRepository,
     services::date_provider::DateTimeProvider,
 };
 
 mod controllers;
+
+pub async fn serve() -> std::io::Result<()> {
+    std::env::set_var("RUST_LOG", "debug");
+    tracing_subscriber::fmt::init();
+
+    let server = HttpServer::new(move || {
+        App::new()
+            .app_data(web::Data::new(ServicesInjected::default()))
+            .configure(routes)
+            .service(hello)
+    });
+
+    println!("Server started");
+    server.bind(("127.0.0.1", 7000))?.run().await
+}
 
 struct ServicesInjected {
     pub authentication: AuthenticationService,
@@ -23,27 +39,14 @@ impl Default for ServicesInjected {
 
         let datetime_provider = Box::new(DateTimeProvider);
         let jwt_token_generator = Box::new(JwtTokenGenerator::new(jwt_settings, datetime_provider));
-        let authentication_service = AuthenticationService::new(jwt_token_generator);
+        let user_repository = Box::new(UserInMemoryRepository);
+        let authentication_service =
+            AuthenticationService::new(jwt_token_generator, user_repository);
 
         Self {
             authentication: authentication_service,
         }
     }
-}
-
-pub async fn serve() -> std::io::Result<()> {
-    std::env::set_var("RUST_LOG", "debug");
-    tracing_subscriber::fmt::init();
-
-    let server = HttpServer::new(move || {
-        App::new()
-            .app_data(web::Data::new(ServicesInjected::default()))
-            .configure(routes)
-            .service(hello)
-    });
-
-    println!("Server started");
-    server.bind(("127.0.0.1", 7000))?.run().await
 }
 
 #[derive(Debug)]

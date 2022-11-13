@@ -1,68 +1,97 @@
+use domain::entities::user::User;
+use thiserror::Error;
+
 use crate::common::interfaces::authentication::IJwtTokenGenerator;
-use uuid::Uuid;
+use crate::persistence::user_repository::IUserRepository;
+use crate::Result;
 
 pub trait IAuthenticationService {
     fn register(
         &self,
-        first_name: String,
-        last_name: String,
-        email: String,
-        password: String,
-    ) -> AuthenticationResult;
+        first_name: &str,
+        last_name: &str,
+        email: &str,
+        password: &str,
+    ) -> Result<AuthenticationResult>;
 
-    fn login(email: String, password: String) -> AuthenticationResult;
+    fn login(&self, email: &str, password: &str) -> Result<AuthenticationResult>;
 }
 
 pub struct AuthenticationService {
     jwt_token_generator: Box<dyn IJwtTokenGenerator>,
+    user_repository: Box<dyn IUserRepository>,
 }
 
 impl AuthenticationService {
-    pub fn new(jwt_token_generator: Box<dyn IJwtTokenGenerator>) -> Self {
+    pub fn new(
+        jwt_token_generator: Box<dyn IJwtTokenGenerator>,
+        user_repository: Box<dyn IUserRepository>,
+    ) -> Self {
         Self {
             jwt_token_generator,
+            user_repository,
         }
+    }
+
+    fn get_user_with_token(&self, user: User) -> AuthenticationResult {
+        let token = self.jwt_token_generator.generate_token(&user);
+
+        AuthenticationResult { user, token }
     }
 }
 
 impl IAuthenticationService for AuthenticationService {
     fn register(
         &self,
-        first_name: String,
-        last_name: String,
-        email: String,
-        _password: String,
-    ) -> AuthenticationResult {
-        let id = Uuid::new_v4();
-        let user_id = id.to_string();
-        let token = self
-            .jwt_token_generator
-            .generate_token(&user_id, &first_name, &last_name);
-
-        AuthenticationResult {
-            id,
-            first_name,
-            last_name,
-            email,
-            token,
+        first_name: &str,
+        last_name: &str,
+        email: &str,
+        password: &str,
+    ) -> Result<AuthenticationResult> {
+        if self.user_repository.get_user_by_email(email).is_some() {
+            return Err(crate::Error::AuthenticationError(
+                AuthenticationError::EmailAlreadyExist,
+            ));
         }
+
+        let user = User::new(first_name, last_name, email, password);
+
+        self.user_repository.add(&user);
+        Ok(self.get_user_with_token(user))
     }
 
-    fn login(email: String, _password: String) -> AuthenticationResult {
-        AuthenticationResult {
-            id: Uuid::new_v4(),
-            first_name: "first_name".to_string(),
-            last_name: "last_name".to_string(),
-            email,
-            token: "token".to_string(),
-        }
+    fn login(&self, email: &str, password: &str) -> Result<AuthenticationResult> {
+        self.user_repository
+            .get_user_by_email(email)
+            .map(|user| {
+                user.password
+                    .eq(&password)
+                    .then(|| self.get_user_with_token(user))
+                    .ok_or(crate::Error::AuthenticationError(
+                        AuthenticationError::InvalidPassword,
+                    ))
+            })
+            .unwrap_or_else(|| {
+                let err = crate::Error::AuthenticationError(AuthenticationError::EmailNotExist);
+
+                Err(err)
+            })
     }
 }
 
 pub struct AuthenticationResult {
-    pub id: Uuid,
-    pub first_name: String,
-    pub last_name: String,
-    pub email: String,
+    pub user: User,
     pub token: String,
+}
+
+#[derive(Debug, Error)]
+pub enum AuthenticationError {
+    #[error("User with given email already exists.")]
+    EmailAlreadyExist,
+
+    #[error("User with given email does not exists.")]
+    EmailNotExist,
+
+    #[error("Invalid password.")]
+    InvalidPassword,
 }

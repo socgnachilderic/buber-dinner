@@ -1,6 +1,7 @@
 use application::common::interfaces::{
     authentication::IJwtTokenGenerator, services::IDateProvider,
 };
+use domain::entities::user::User;
 use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
 
@@ -23,17 +24,19 @@ impl JwtTokenGenerator {
 }
 
 impl IJwtTokenGenerator for JwtTokenGenerator {
-    fn generate_token(&self, user_id: &str, first_name: &str, last_name: &str) -> String {
+    fn generate_token(&self, user: &User) -> String {
         let jwt_header = Header::default();
         let secret_key = EncodingKey::from_secret(self.jwt_settings.secret.as_bytes());
         let now = self.datetime_provider.now();
         let exp_date = now + self.jwt_settings.expiry_minutes * MINUTES;
+        let first_name = &user.first_name;
+        let last_name = &user.last_name;
 
         let claims = Claims {
             iss: self.jwt_settings.issuer.to_owned(),
             aud: self.jwt_settings.audience.to_owned(),
             sub: format!("{first_name} {last_name}"),
-            jti: user_id.to_string(),
+            jti: user.id.to_string(),
             given_name: first_name.to_string(),
             family_name: last_name.to_string(),
             iat: now,
