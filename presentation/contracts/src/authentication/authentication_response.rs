@@ -14,10 +14,10 @@ pub struct AuthenticationResponse {
 impl From<AuthenticationResult> for AuthenticationResponse {
     fn from(auth_result: AuthenticationResult) -> Self {
         Self {
-            id: auth_result.id.to_string(),
-            first_name: auth_result.first_name,
-            last_name: auth_result.last_name,
-            email: auth_result.email,
+            id: auth_result.user.id,
+            first_name: auth_result.user.first_name,
+            last_name: auth_result.user.last_name,
+            email: auth_result.user.email,
             token: auth_result.token,
         }
     }
