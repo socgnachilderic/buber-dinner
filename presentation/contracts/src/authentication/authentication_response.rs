@@ -1,10 +1,11 @@
 use application::services::authentication::AuthenticationResult;
 use serde::Serialize;
+use uuid::Uuid;
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AuthenticationResponse {
-    pub id: String,
+    pub id: Uuid,
     pub first_name: String,
     pub last_name: String,
     pub email: String,

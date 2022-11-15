@@ -1,8 +1,14 @@
-use actix_web::{error, post, web, Responder, Result};
+use actix_web::http::StatusCode;
+use actix_web::{post, web, Responder, Result};
 use application::services::authentication::IAuthenticationService;
 use contracts::authentication::{AuthenticationResponse, LoginRequest, RegisterRequest};
 
+use crate::errors::app_error_response::AppErrorResponse;
 use crate::ServicesInjected;
+
+pub fn routes(cfg: &mut web::ServiceConfig) {
+    cfg.service(web::scope("/auth").service(register).service(login));
+}
 
 #[post("/register")]
 async fn register(
@@ -17,7 +23,7 @@ async fn register(
             &register_request.0.email,
             &register_request.0.password,
         )
-        .map_err(error::ErrorBadRequest)?;
+        .map_err(|err| AppErrorResponse::from_error(err, StatusCode::BAD_REQUEST))?;
     let response = AuthenticationResponse::from(auth_result);
 
     Ok(web::Json(response))
@@ -31,12 +37,8 @@ async fn login(
     let auth_result = services
         .authentication
         .login(&login_request.0.email, &login_request.0.password)
-        .map_err(error::ErrorBadRequest)?;
+        .map_err(|err| AppErrorResponse::from_error(err, StatusCode::BAD_REQUEST))?;
     let response = AuthenticationResponse::from(auth_result);
 
     Ok(web::Json(response))
-}
-
-pub fn routes(cfg: &mut web::ServiceConfig) {
-    cfg.service(web::scope("/auth").service(register).service(login));
 }

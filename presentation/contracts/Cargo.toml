@@ -7,4 +7,5 @@ edition = "2021"
 
 [dependencies]
 application = { path = "../../application" }
-serde = { version = "1.0.147", features = ["derive"] }
+serde = { workspace = true }
+uuid = { workspace = true }

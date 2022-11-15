@@ -1,20 +1,29 @@
+use actix_web::http::header;
+use actix_web::middleware::DefaultHeaders;
 use actix_web::{get, web, App, HttpResponse, HttpServer};
 use application::services::authentication::AuthenticationService;
-use infrastructure::{
-    authentication::{jwt_settings::JwtSettings, jwt_token_generator::JwtTokenGenerator},
-    persistence::user_inmemory_repository::UserInMemoryRepository,
-    services::date_provider::DateTimeProvider,
-};
+use infrastructure::authentication::jwt_settings::JwtSettings;
+use infrastructure::authentication::jwt_token_generator::JwtTokenGenerator;
+use infrastructure::persistence::user_inmemory_repository::UserInMemoryRepository;
+use infrastructure::services::date_provider::DateTimeProvider;
 
 mod controllers;
+mod errors;
+mod middlewares;
 
 pub async fn serve() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "debug");
     tracing_subscriber::fmt::init();
 
     let server = HttpServer::new(move || {
+        let default_header_mw = DefaultHeaders::new().add((
+            header::CONTENT_TYPE,
+            header::HeaderValue::from_static("application/json"),
+        ));
+
         App::new()
             .app_data(web::Data::new(ServicesInjected::default()))
+            .wrap(default_header_mw)
             .configure(routes)
             .service(hello)
     });
