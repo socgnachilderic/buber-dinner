@@ -10,4 +10,5 @@ application = { path = "../application" }
 domain = { path = "../domain" }
 jsonwebtoken = "8.1.1"
 lazy_static = "1.4.0"
-serde = { version = "1.0.147", features = ["derive"] }
+serde = { workspace = true }
+uuid = { workspace = true }
