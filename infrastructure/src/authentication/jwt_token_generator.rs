@@ -1,6 +1,6 @@
-use application::common::interfaces::{
-    authentication::IJwtTokenGenerator, services::IDateProvider,
-};
+use std::sync::Arc;
+
+use application::common::interfaces::{IDateProvider, IJwtTokenGenerator};
 use domain::entities::user::User;
 use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
@@ -11,11 +11,11 @@ const MINUTES: u64 = 60;
 
 pub struct JwtTokenGenerator {
     jwt_settings: JwtSettings,
-    datetime_provider: Box<dyn IDateProvider>,
+    datetime_provider: Arc<dyn IDateProvider>,
 }
 
 impl JwtTokenGenerator {
-    pub fn new(jwt_settings: JwtSettings, datetime_provider: Box<dyn IDateProvider>) -> Self {
+    pub fn new(jwt_settings: JwtSettings, datetime_provider: Arc<dyn IDateProvider>) -> Self {
         Self {
             jwt_settings,
             datetime_provider,

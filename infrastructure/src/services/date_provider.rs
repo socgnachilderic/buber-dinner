@@ -1,6 +1,6 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use application::common::interfaces::services::IDateProvider;
+use application::common::interfaces::IDateProvider;
 
 pub struct DateTimeProvider;
 
