@@ -7,6 +7,5 @@ edition = "2021"
 
 [dependencies]
 domain = { path = "../domain" }
-thiserror = "1.0.37"
 serde = { workspace = true }
 uuid = { workspace = true }

@@ -1,7 +1,7 @@
-use actix_web::http::StatusCode;
 use actix_web::{post, web, Responder, Result};
 use application::services::authentication::IAuthenticationService;
 use contracts::authentication::{AuthenticationResponse, LoginRequest, RegisterRequest};
+use domain::common::errors::error_codes;
 
 use crate::errors::app_error_response::AppErrorResponse;
 use crate::ServicesInjected;
@@ -23,7 +23,9 @@ async fn register(
             &register_request.0.email,
             &register_request.0.password,
         )
-        .map_err(|err| AppErrorResponse::from_error(err, StatusCode::BAD_REQUEST))?;
+        .map_err(|err| {
+            AppErrorResponse::from(err).add_error_code(error_codes::USER_DUPLICATE_EMAIL)
+        })?;
     let response = AuthenticationResponse::from(auth_result);
 
     Ok(web::Json(response))
@@ -37,7 +39,7 @@ async fn login(
     let auth_result = services
         .authentication
         .login(&login_request.0.email, &login_request.0.password)
-        .map_err(|err| AppErrorResponse::from_error(err, StatusCode::BAD_REQUEST))?;
+        .map_err(AppErrorResponse::from)?;
     let response = AuthenticationResponse::from(auth_result);
 
     Ok(web::Json(response))
