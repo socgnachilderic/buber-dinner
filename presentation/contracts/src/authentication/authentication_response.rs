@@ -1,4 +1,4 @@
-use application::services::authentication::AuthenticationResult;
+use application::authentication::AuthenticationResult;
 use serde::Serialize;
 use uuid::Uuid;
 

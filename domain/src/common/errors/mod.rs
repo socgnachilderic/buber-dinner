@@ -5,6 +5,8 @@ pub use authentication_error::AuthenticationError;
 mod authentication_error;
 pub mod error_codes;
 
+pub type Result<T> = std::result::Result<T, Error>;
+
 #[derive(Debug)]
 pub enum Error {
     Authentication(AuthenticationError),

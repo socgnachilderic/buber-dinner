@@ -1,7 +1,10 @@
+use std::sync::Arc;
+
 use actix_web::http::header;
 use actix_web::middleware::DefaultHeaders;
 use actix_web::{get, web, App, HttpResponse, HttpServer};
-use application::services::authentication::AuthenticationService;
+use application::authentication::commands::AuthenticationCommandHandler;
+use application::authentication::queries::AuthenticationQueryHandler;
 use infrastructure::authentication::jwt_settings::JwtSettings;
 use infrastructure::authentication::jwt_token_generator::JwtTokenGenerator;
 use infrastructure::persistence::user_inmemory_repository::UserInMemoryRepository;
@@ -33,7 +36,8 @@ pub async fn serve() -> std::io::Result<()> {
 }
 
 struct ServicesInjected {
-    pub authentication: AuthenticationService,
+    pub authentication_command: AuthenticationCommandHandler,
+    pub authentication_query: AuthenticationQueryHandler,
 }
 
 impl Default for ServicesInjected {
@@ -46,14 +50,19 @@ impl Default for ServicesInjected {
             env.jwt_audience,
         );
 
-        let datetime_provider = Box::new(DateTimeProvider);
-        let jwt_token_generator = Box::new(JwtTokenGenerator::new(jwt_settings, datetime_provider));
-        let user_repository = Box::new(UserInMemoryRepository);
-        let authentication_service =
-            AuthenticationService::new(jwt_token_generator, user_repository);
+        let datetime_provider = Arc::new(DateTimeProvider);
+        let jwt_token_generator = Arc::new(JwtTokenGenerator::new(jwt_settings, datetime_provider));
+        let user_repository = Arc::new(UserInMemoryRepository);
 
         Self {
-            authentication: authentication_service,
+            authentication_command: AuthenticationCommandHandler::new(
+                jwt_token_generator.clone(),
+                user_repository.clone(),
+            ),
+            authentication_query: AuthenticationQueryHandler::new(
+                jwt_token_generator,
+                user_repository,
+            ),
         }
     }
 }
