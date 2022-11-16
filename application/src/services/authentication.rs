@@ -1,9 +1,9 @@
+use domain::common::errors::AuthenticationError;
 use domain::entities::user::User;
-use thiserror::Error;
+use domain::Result;
 
 use crate::common::interfaces::authentication::IJwtTokenGenerator;
 use crate::persistence::user_repository::IUserRepository;
-use crate::Result;
 
 pub trait IAuthenticationService {
     fn register(
@@ -49,9 +49,7 @@ impl IAuthenticationService for AuthenticationService {
         password: &str,
     ) -> Result<AuthenticationResult> {
         if self.user_repository.get_user_by_email(email).is_some() {
-            return Err(crate::Error::AuthenticationError(
-                AuthenticationError::EmailAlreadyExist,
-            ));
+            return Err(AuthenticationError::EmailAlreadyExist.into());
         }
 
         let user = User::new(first_name, last_name, email, password);
@@ -61,37 +59,17 @@ impl IAuthenticationService for AuthenticationService {
     }
 
     fn login(&self, email: &str, password: &str) -> Result<AuthenticationResult> {
-        self.user_repository
-            .get_user_by_email(email)
-            .map(|user| {
-                user.password
-                    .eq(&password)
-                    .then(|| self.get_user_with_token(user))
-                    .ok_or(crate::Error::AuthenticationError(
-                        AuthenticationError::InvalidPassword,
-                    ))
-            })
-            .unwrap_or_else(|| {
-                let err = crate::Error::AuthenticationError(AuthenticationError::EmailNotExist);
+        if let Some(user) = self.user_repository.get_user_by_email(email) {
+            if user.password == password {
+                return Ok(self.get_user_with_token(user));
+            }
+        }
 
-                Err(err)
-            })
+        Err(AuthenticationError::InvalidCredentials.into())
     }
 }
 
 pub struct AuthenticationResult {
     pub user: User,
     pub token: String,
-}
-
-#[derive(Debug, Error)]
-pub enum AuthenticationError {
-    #[error("User with given email already exists.")]
-    EmailAlreadyExist,
-
-    #[error("User with given email does not exists.")]
-    EmailNotExist,
-
-    #[error("Invalid password.")]
-    InvalidPassword,
 }

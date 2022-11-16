@@ -9,6 +9,7 @@ edition = "2021"
 actix-web = "4.2.1"
 application = { path="../../application" }
 contracts = { path="../contracts" }
+domain = { path="../../domain" }
 dotenvy = "0.15.6"
 futures-util = "0.3.25"
 infrastructure = { path="../../infrastructure" }
