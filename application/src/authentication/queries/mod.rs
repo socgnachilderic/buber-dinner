@@ -3,7 +3,7 @@ use std::sync::Arc;
 use domain::common::errors::Result;
 use serde::{Deserialize, Serialize};
 
-use crate::common::interfaces::{IJwtTokenGenerator, IUserRepository};
+use crate::common::interfaces::{IJwtTokenGenerator, IUserRepository, ItemHandle};
 
 pub use login_query::LoginQuery;
 

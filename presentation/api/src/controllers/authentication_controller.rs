@@ -4,7 +4,7 @@ use application::authentication::queries::LoginQuery;
 use contracts::authentication::{AuthenticationResponse, LoginRequest, RegisterRequest};
 use domain::common::errors::error_codes;
 
-use crate::errors::app_error_response::AppErrorResponse;
+use crate::errors::AppError;
 use crate::ServicesInjected;
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
@@ -26,7 +26,18 @@ async fn register(
         .authentication_command
         .handle(register_command.into())
         .map_err(|err| {
-            AppErrorResponse::from(err).add_error_code(error_codes::USER_DUPLICATE_EMAIL)
+            let mut error = AppError::from(err);
+
+            if let AppError::Problem(problem) = &error {
+                if problem.error_codes.is_empty() {
+                    error = problem
+                        .clone()
+                        .add_error_code(error_codes::USER_DUPLICATE_EMAIL)
+                        .into();
+                }
+            }
+
+            error
         })?;
     let response = AuthenticationResponse::from(auth_result);
 
@@ -45,7 +56,7 @@ async fn login(
     let auth_result = services
         .authentication_query
         .handle(login_query.into())
-        .map_err(AppErrorResponse::from)?;
+        .map_err(AppError::from)?;
     let response = AuthenticationResponse::from(auth_result);
 
     Ok(web::Json(response))
