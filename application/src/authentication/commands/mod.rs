@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 pub use register_command::RegisterCommand;
 
-use crate::common::interfaces::{IJwtTokenGenerator, IUserRepository};
+use crate::common::interfaces::{IJwtTokenGenerator, IUserRepository, ItemHandle};
 
 mod register_command;
 
