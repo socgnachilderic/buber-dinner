@@ -5,20 +5,20 @@ use serde::{Deserialize, Serialize};
 
 pub use register_command::RegisterCommand;
 
-use crate::common::interfaces::{IJwtTokenGenerator, IUserRepository, ItemHandle};
+use crate::common::interfaces::{IJwtTokenManager, IUserRepository, ItemHandle};
 
 mod register_command;
 
 use super::AuthenticationResult;
 
 pub struct AuthenticationCommandHandler {
-    jwt_token_generator: Arc<dyn IJwtTokenGenerator>,
+    jwt_token_generator: Arc<dyn IJwtTokenManager>,
     user_repository: Arc<dyn IUserRepository>,
 }
 
 impl AuthenticationCommandHandler {
     pub fn new(
-        jwt_token_generator: Arc<dyn IJwtTokenGenerator>,
+        jwt_token_generator: Arc<dyn IJwtTokenManager>,
         user_repository: Arc<dyn IUserRepository>,
     ) -> Self {
         Self {

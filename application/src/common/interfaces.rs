@@ -1,10 +1,12 @@
 use domain::common::errors::{Error, Result, ValidationError};
 use domain::entities::user::User;
+use domain::entities::UID;
 use inflections::case::{to_pascal_case, to_title_case};
 use validator::Validate;
 
-pub trait IJwtTokenGenerator {
+pub trait IJwtTokenManager {
     fn generate_token(&self, user: &User) -> String;
+    fn validate_token(&self, token: &str) -> Option<UID>;
 }
 
 pub trait IUserRepository {
