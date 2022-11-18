@@ -1,4 +1,4 @@
-use actix_web::{post, web, Responder, Result};
+use actix_web::{post, web, HttpResponse, Responder, Result};
 use application::authentication::commands::RegisterCommand;
 use application::authentication::queries::LoginQuery;
 use contracts::authentication::{AuthenticationResponse, LoginRequest, RegisterRequest};
@@ -41,7 +41,7 @@ async fn register(
         })?;
     let response = AuthenticationResponse::from(auth_result);
 
-    Ok(web::Json(response))
+    Ok(HttpResponse::Created().json(response))
 }
 
 #[post("/login")]
@@ -59,5 +59,5 @@ async fn login(
         .map_err(AppError::from)?;
     let response = AuthenticationResponse::from(auth_result);
 
-    Ok(web::Json(response))
+    Ok(HttpResponse::Ok().json(response))
 }

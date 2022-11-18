@@ -1,8 +1,10 @@
 use uuid::Uuid;
 
+use super::UID;
+
 #[derive(Debug, Clone)]
 pub struct User {
-    pub id: Uuid,
+    pub id: UID,
     pub first_name: String,
     pub last_name: String,
     pub email: String,

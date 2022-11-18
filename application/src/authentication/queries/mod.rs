@@ -3,7 +3,7 @@ use std::sync::Arc;
 use domain::common::errors::Result;
 use serde::{Deserialize, Serialize};
 
-use crate::common::interfaces::{IJwtTokenGenerator, IUserRepository, ItemHandle};
+use crate::common::interfaces::{IJwtTokenManager, IUserRepository, ItemHandle};
 
 pub use login_query::LoginQuery;
 
@@ -12,13 +12,13 @@ use super::AuthenticationResult;
 mod login_query;
 
 pub struct AuthenticationQueryHandler {
-    jwt_token_generator: Arc<dyn IJwtTokenGenerator>,
+    jwt_token_generator: Arc<dyn IJwtTokenManager>,
     user_repository: Arc<dyn IUserRepository>,
 }
 
 impl AuthenticationQueryHandler {
     pub fn new(
-        jwt_token_generator: Arc<dyn IJwtTokenGenerator>,
+        jwt_token_generator: Arc<dyn IJwtTokenManager>,
         user_repository: Arc<dyn IUserRepository>,
     ) -> Self {
         Self {

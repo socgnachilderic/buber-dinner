@@ -1,0 +1,5 @@
+@host=http://localhost:7000
+@token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb2huIGRvZSIsImlzcyI6IkJ1YmVyRGlubmVyIiwiYXVkIjoiQnViZXJEaW5uZXIiLCJqdGkiOiIxZTNkOWM4OC1jMTFmLTQ1OWMtYjYxNy1hYjJiM2IzNzkxMmIiLCJnaXZlbk5hbWUiOiJqb2huIiwiZmFtaWx5TmFtZSI6ImRvZSIsImlhdCI6MTY2ODgxMTE1NiwiZXhwIjoxNjY4ODE0NzU2fQ.gaokaFAMOI6JHid61nM6jahznqwnlOupAu9y6UhKjAM
+
+GET {{host}}/dinners
+Authorization: Bearer {{token}}
