@@ -1,4 +1,4 @@
-use domain::entities::user::User;
+use domain::user::User;
 
 pub mod commands;
 pub mod queries;

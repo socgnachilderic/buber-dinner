@@ -1,6 +1,6 @@
 use domain::common::errors::{Error, Result, ValidationError};
-use domain::entities::user::User;
-use domain::entities::UID;
+use domain::user::User;
+use domain::common::UID;
 use inflections::case::{to_pascal_case, to_title_case};
 use validator::Validate;
 

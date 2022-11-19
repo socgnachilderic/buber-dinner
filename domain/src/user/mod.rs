@@ -1,6 +1,6 @@
 use uuid::Uuid;
 
-use super::UID;
+use crate::common::UID;
 
 #[derive(Debug, Clone)]
 pub struct User {
