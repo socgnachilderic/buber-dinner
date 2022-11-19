@@ -1,5 +1,5 @@
 use domain::common::errors::*;
-use domain::entities::user::User;
+use domain::user::User;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 

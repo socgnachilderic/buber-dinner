@@ -1,3 +1,7 @@
-pub mod aggregate_root;
-pub mod entities;
-pub mod value_object;
+pub use aggregate_root::*;
+pub use entities::*;
+pub use value_object::*;
+
+mod aggregate_root;
+mod entities;
+mod value_object;

@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 use application::common::interfaces::IUserRepository;
-use domain::entities::user::User;
+use domain::user::User;
 use lazy_static::lazy_static;
 use uuid::Uuid;
 

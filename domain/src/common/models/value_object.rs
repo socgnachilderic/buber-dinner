@@ -1,4 +1,8 @@
-pub trait ValueObject: PartialEq {}
+pub trait ValueObject<'a>: Clone + PartialEq {
+    type Value;
+
+    fn get_value(&'a self) -> &'a Self::Value;
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Price {
@@ -20,7 +24,13 @@ impl Price {
     }
 }
 
-impl ValueObject for Price {}
+impl<'a> ValueObject<'a> for Price {
+    type Value = ();
+
+    fn get_value(&'a self) -> &'a Self::Value {
+        unimplemented!()
+    }
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Currency {}

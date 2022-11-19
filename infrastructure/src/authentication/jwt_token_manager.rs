@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use application::common::interfaces::{IDateProvider, IJwtTokenManager};
-use domain::entities::user::User;
-use domain::entities::UID;
+use domain::user::User;
+use domain::common::UID;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 
